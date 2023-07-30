@@ -82,6 +82,13 @@ function App() {
     }
   }
 
+  function addLineNumbers(content: string): string {
+    return content
+        .split('\n')
+        .map((line, index) => `${index + 1} : ${line}`)
+        .join('\n');
+  }
+
   return (
     <div className="flex h-screen antialiased text-gray-800">
       <div className="flex flex-row h-full w-full overflow-x-hidden">
@@ -131,17 +138,15 @@ function App() {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      setSelectedFile(file); // Set the selected file in the state
-                      
-                      console.log(file.name);
-                      
-                      // Read the file contents
+                      setSelectedFile(file); 
+
                       const fileReader = new FileReader();
                       fileReader.onload = () => {
                         const content = fileReader.result as string;
-                        setFileContent(content); // Set the file content in the state
-                        console.log(`Selected file: ` + file.name + `:\n` + content); 
-                        setInput(`Selected file: ` + file.name + `:\n` + content);
+                        const contentWithLineNumbers = addLineNumbers(content);
+                        setFileContent(contentWithLineNumbers);
+                        console.log(`Selected file: ` + file.name + `:\n` + contentWithLineNumbers); 
+                        setInput(`Selected file: ` + file.name + `:\n` + contentWithLineNumbers);
                       };
                       fileReader.readAsText(file);
                     }
