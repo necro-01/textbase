@@ -53,6 +53,10 @@ function App() {
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const inputElementRef = useRef<HTMLInputElement>(null); // Create a ref for the input element
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // New state variable to store the selected file
+  const [fileContent, setFileContent] = useState<string | null>(null);
+
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -103,6 +107,10 @@ function App() {
                     }}
                     onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                       if (e.key === "Enter") {
+                        if (input.trim() === '') {
+                          setInput('');
+                          return;
+                        }
                         const newMessage: Message = {
                           content: input,
                           role: "user",
@@ -115,10 +123,50 @@ function App() {
                   />
                 </div>
               </div>
+              <div className="ml-2">
+                <input
+                  type="file"
+                  style={{ display: "none" }} // Hide the input element visually
+                  ref={inputElementRef}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedFile(file); // Set the selected file in the state
+                      
+                      console.log(file.name);
+                      
+                      // Read the file contents
+                      const fileReader = new FileReader();
+                      fileReader.onload = () => {
+                        const content = fileReader.result as string;
+                        setFileContent(content); // Set the file content in the state
+                        console.log(`Selected file: ` + file.name + `:\n` + content); 
+                        setInput(`Selected file: ` + file.name + `:\n` + content);
+                      };
+                      fileReader.readAsText(file);
+                    }
+                  }}
+                />
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    if (inputElementRef.current) {
+                      inputElementRef.current.click(); // Programmatically trigger the file input click
+                    }
+                  }}
+                >
+                  🔗
+                </span>
+              </div>
               <div className="ml-4">
                 <button
                   className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0"
                   onClick={() => {
+                    if (input.trim() === '') {
+                      setInput('');
+                      return;
+                    }
                     const newMessage: Message = {
                       content: input,
                       role: "user",
